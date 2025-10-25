@@ -1,18 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
     [Header("Game Settings")]
-    public Vector3 deckPosition = new Vector3(0, 0, 0);
+    public Vector3 deckPosition = new Vector3(-6, 0, 0);
     public float cardOffset = 0.1f;
+    public Vector3 opponentArea = new Vector3(-2, 2, 0);
+    public Vector3 playerArea = new Vector3(-2, -2, 0);
+    public float handSpacing = 1.5f;
     
     private List<CardData> cardDatabase = new List<CardData>();
     private List<GameObject> cardPile = new List<GameObject>();
+    private List<GameObject> opponentHand = new List<GameObject>();
+    private List<GameObject> playerHand = new List<GameObject>();
     private Sprite cardBackSprite;
+    private bool cardsDealt = false;
     
     void Start()
     {
+        deckPosition = new Vector3(-6, 0, 0);
         InitializeCardDatabase();
         LoadCardSprites();
         CreateCardBack();
@@ -33,14 +41,14 @@ public class GameManager : MonoBehaviour
         cardDatabase.Add(new CardData("double_the_rent.png", "Double The Rent", 2));
         cardDatabase.Add(new CardData("electriccompany.png", "Electric Company", 1));
         cardDatabase.Add(new CardData("eustonroad.png", "Euston Road", 1));
-        cardDatabase.Add(new CardData("fenchurchststation.png", "Fenchurch St. Station", 1));
+        cardDatabase.Add(new CardData("fenchirchststation.png", "Fenchurch St. Station", 1));
         cardDatabase.Add(new CardData("fleetstreet.png", "Fleet Street", 1));
         cardDatabase.Add(new CardData("forced_deal.png", "Forced Deal", 3));
         cardDatabase.Add(new CardData("green_dark_blue_rent.png", "Rent (Green & Dark Blue)", 2));
         cardDatabase.Add(new CardData("green_darkblue_wild.png", "Green / Dark Blue Wild Card", 1));
         cardDatabase.Add(new CardData("hotel.png", "Hotel", 3));
         cardDatabase.Add(new CardData("house.png", "House", 3));
-        cardDatabase.Add(new CardData("its_my_birthay.png", "It's My Birthday", 3));
+        cardDatabase.Add(new CardData("its_my_birthday.png", "It's My Birthday", 3));
         cardDatabase.Add(new CardData("just_say_no.png", "Just Say No", 3));
         cardDatabase.Add(new CardData("kingscrossstation.png", "Kings Cross Station", 1));
         cardDatabase.Add(new CardData("leicestersquare.png", "Leicester Square", 1));
@@ -88,16 +96,24 @@ public class GameManager : MonoBehaviour
     {
         Sprite[] sprites = Resources.LoadAll<Sprite>("Cards");
         
+        Debug.Log($"Available sprites: {string.Join(", ", System.Array.ConvertAll(sprites, s => s.name))}");
+        
         // Match sprites to card data
         foreach (var cardData in cardDatabase)
         {
+            string expectedName = cardData.filename.Replace(".png", "") + "_0";
             foreach (var sprite in sprites)
             {
-                if (sprite.name == cardData.filename.Replace(".png", ""))
+                if (sprite.name == expectedName)
                 {
                     cardData.sprite = sprite;
                     break;
                 }
+            }
+            
+            if (cardData.sprite == null)
+            {
+                Debug.LogWarning($"No sprite found for {cardData.filename} (looking for '{expectedName}')");
             }
         }
         
@@ -106,7 +122,17 @@ public class GameManager : MonoBehaviour
     
     void CreateCardBack()
     {
-        cardBackSprite = CardBack.CreateCardBackSprite();
+        cardBackSprite = Resources.Load<Sprite>("card_back");
+        if (cardBackSprite == null)
+        {
+            Debug.LogError("Could not load card_back.png from Resources folder");
+            // Fallback to programmatic card back
+            cardBackSprite = CardBack.CreateCardBackSprite();
+        }
+        else
+        {
+            Debug.Log("Loaded card_back.png successfully");
+        }
     }
     
     void CreateCardPile()
@@ -130,11 +156,11 @@ public class GameManager : MonoBehaviour
                 // Position cards in a pile with slight offset
                 Vector3 position = deckPosition + new Vector3(0, 0, -cardIndex * cardOffset);
                 card.transform.position = position;
-                card.transform.localScale = Vector3.one * 1.5f;
+                card.transform.localScale = Vector3.one * 0.35f;
                 
                 SpriteRenderer spriteRenderer = card.AddComponent<SpriteRenderer>();
                 spriteRenderer.sprite = cardBackSprite;
-                spriteRenderer.sortingOrder = cardIndex;
+                spriteRenderer.sortingOrder = 3000 + cardIndex;
                 
                 // Add the Card component and store the actual card sprite
                 Card cardComponent = card.AddComponent<Card>();
@@ -169,37 +195,107 @@ public class GameManager : MonoBehaviour
             // Update positions and sorting orders after shuffle
             Vector3 position = deckPosition + new Vector3(0, 0, -i * cardOffset);
             cardPile[i].transform.position = position;
-            cardPile[i].GetComponent<SpriteRenderer>().sortingOrder = i;
+            cardPile[i].GetComponent<SpriteRenderer>().sortingOrder = 3000 + i;
         }
     }
     
-    public void DrawCard()
+    public void DealCards()
     {
-        if (cardPile.Count > 0)
+        if (cardsDealt)
         {
-            GameObject topCard = cardPile[cardPile.Count - 1];
+            // Return all cards to deck and reshuffle
+            ReturnCardsToDeck();
+            ShuffleDeck();
+            cardsDealt = false;
+        }
+        else
+        {
+            // Deal 5 cards to each player
+            DealHandsToPlayers();
+            cardsDealt = true;
+        }
+    }
+    
+    void DealHandsToPlayers()
+    {
+        // Deal 5 cards to opponent (top of screen)
+        for (int i = 0; i < 5 && cardPile.Count > 0; i++)
+        {
+            GameObject card = cardPile[cardPile.Count - 1];
             cardPile.RemoveAt(cardPile.Count - 1);
             
-            Card cardComponent = topCard.GetComponent<Card>();
+            Card cardComponent = card.GetComponent<Card>();
             cardComponent.SetFaceDown(false);
             
-            // Move card to a drawn position
-            Vector3 drawnPosition = deckPosition + new Vector3(4, 0, 0);
-            topCard.transform.position = drawnPosition;
-            topCard.GetComponent<SpriteRenderer>().sortingOrder = 1000;
+            Vector3 cardPosition = opponentArea + new Vector3(i * handSpacing, 0, 0);
+            card.transform.position = cardPosition;
+            card.GetComponent<SpriteRenderer>().sortingOrder = 2000 + i;
+            
+            opponentHand.Add(card);
         }
+        
+        // Deal 5 cards to player (bottom of screen)
+        for (int i = 0; i < 5 && cardPile.Count > 0; i++)
+        {
+            GameObject card = cardPile[cardPile.Count - 1];
+            cardPile.RemoveAt(cardPile.Count - 1);
+            
+            Card cardComponent = card.GetComponent<Card>();
+            cardComponent.SetFaceDown(false);
+            
+            Vector3 cardPosition = playerArea + new Vector3(i * handSpacing, 0, 0);
+            card.transform.position = cardPosition;
+            card.GetComponent<SpriteRenderer>().sortingOrder = 2000 + i;
+            
+            playerHand.Add(card);
+        }
+        
+        Debug.Log($"Dealt 5 cards to each player. Deck has {cardPile.Count} cards remaining.");
+    }
+    
+    void ReturnCardsToDeck()
+    {
+        // Return opponent cards
+        foreach (GameObject card in opponentHand)
+        {
+            Card cardComponent = card.GetComponent<Card>();
+            cardComponent.SetFaceDown(true);
+            cardPile.Add(card);
+        }
+        opponentHand.Clear();
+        
+        // Return player cards
+        foreach (GameObject card in playerHand)
+        {
+            Card cardComponent = card.GetComponent<Card>();
+            cardComponent.SetFaceDown(true);
+            cardPile.Add(card);
+        }
+        playerHand.Clear();
+        
+        // Reposition all cards back to deck
+        for (int i = 0; i < cardPile.Count; i++)
+        {
+            Vector3 position = deckPosition + new Vector3(0, 0, -i * cardOffset);
+            cardPile[i].transform.position = position;
+            cardPile[i].GetComponent<SpriteRenderer>().sortingOrder = 3000 + i;
+        }
+        
+        Debug.Log($"Returned all cards to deck. Deck has {cardPile.Count} cards.");
     }
     
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        // Simple click detection using new Input System
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            mouseWorldPos.z = 0;
             
-            if (hit.collider != null && cardPile.Contains(hit.collider.gameObject))
+            // Check if click is on the deck (simple distance check)
+            if (Vector3.Distance(mouseWorldPos, deckPosition) < 1.0f)
             {
-                DrawCard();
+                DealCards();
             }
         }
     }
