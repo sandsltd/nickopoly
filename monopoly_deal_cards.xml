@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<monopolyDealDeck>
+  <card>
+    <filename>black_utility_rent.png</filename>
+    <name>Rent (Black Utilities)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>bondstreet.png</filename>
+    <name>Bond Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>bowstreet.png</filename>
+    <name>Bow Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>brown_light_blue_rent.png</filename>
+    <name>Rent (Brown &amp; Light Blue)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>coventrystreet.png</filename>
+    <name>Coventry Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>dark_blue_orange_rent.png</filename>
+    <name>Rent (Dark Blue &amp; Orange)</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>dealbreaker.png</filename>
+    <name>Deal Breaker</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>debt_collector.png</filename>
+    <name>Debt Collector</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>double_the_rent.png</filename>
+    <name>Double The Rent</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>electriccompany.png</filename>
+    <name>Electric Company</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>eustonroad.png</filename>
+    <name>Euston Road</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>fenchurchststation.png</filename>
+    <name>Fenchurch St. Station</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>fleetstreet.png</filename>
+    <name>Fleet Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>forced_deal.png</filename>
+    <name>Forced Deal</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>green_dark_blue_rent.png</filename>
+    <name>Rent (Green &amp; Dark Blue)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>green_darkblue_wild.png</filename>
+    <name>Green / Dark Blue Wild Card</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>hotel.png</filename>
+    <name>Hotel</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>house.png</filename>
+    <name>House</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>its_my_birthay.png</filename>
+    <name>It’s My Birthday</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>just_say_no.png</filename>
+    <name>Just Say No</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>kingscrossstation.png</filename>
+    <name>Kings Cross Station</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>leicestersquare.png</filename>
+    <name>Leicester Square</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>light_blue_brown_wild.png</filename>
+    <name>Light Blue / Brown Wild Card</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>light_blue_pink_rent.png</filename>
+    <name>Rent (Light Blue &amp; Pink)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>light_blue_pink_wild.png</filename>
+    <name>Light Blue / Pink Wild Card</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>liverpoolststation.png</filename>
+    <name>Liverpool St. Station</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>marlboroughstreet.png</filename>
+    <name>Marlborough Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>marylebonstation.png</filename>
+    <name>Marylebone Station</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>mayfair.png</filename>
+    <name>Mayfair</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>money_1m.png</filename>
+    <name>Money £1M</name>
+    <quantity>6</quantity>
+  </card>
+  <card>
+    <filename>money_2m.png</filename>
+    <name>Money £2M</name>
+    <quantity>5</quantity>
+  </card>
+  <card>
+    <filename>money_3m.png</filename>
+    <name>Money £3M</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>money_4m.png</filename>
+    <name>Money £4M</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>money_5m.png</filename>
+    <name>Money £5M</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>money_10m.png</filename>
+    <name>Money £10M</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>northumberlandavenue.png</filename>
+    <name>Northumberland Avenue</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>oldkentroad.png</filename>
+    <name>Old Kent Road</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>orange_red_rent.png</filename>
+    <name>Rent (Orange &amp; Red)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>orange_red_wild.png</filename>
+    <name>Orange / Red Wild Card</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>oxfordstreet.png</filename>
+    <name>Oxford Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>pallmall.png</filename>
+    <name>Pall Mall</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>parklane.png</filename>
+    <name>Park Lane</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>pass_go.png</filename>
+    <name>Pass Go</name>
+    <quantity>10</quantity>
+  </card>
+  <card>
+    <filename>pentonvilleroad.png</filename>
+    <name>Pentonville Road</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>piccadilly.png</filename>
+    <name>Piccadilly</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>pink_orange_rent.png</filename>
+    <name>Rent (Pink &amp; Orange)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>regentstreet.png</filename>
+    <name>Regent Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>rent_all.png</filename>
+    <name>Rent (All Colours)</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>rent_yellow_rent.png</filename>
+    <name>Rent (Yellow &amp; Red)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>sly_deal.png</filename>
+    <name>Sly Deal</name>
+    <quantity>3</quantity>
+  </card>
+  <card>
+    <filename>strand.png</filename>
+    <name>Strand</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>theangelislington.png</filename>
+    <name>The Angel Islington</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>trafalgarsquare.png</filename>
+    <name>Trafalgar Square</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>vinestreet.png</filename>
+    <name>Vine Street</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>waterworks.png</filename>
+    <name>Water Works</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>whitechapelroad.png</filename>
+    <name>Whitechapel Road</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>whitehall.png</filename>
+    <name>Whitehall</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>wild_all_property.png</filename>
+    <name>Wild Card (All Properties)</name>
+    <quantity>2</quantity>
+  </card>
+  <card>
+    <filename>yellow_green_wild.png</filename>
+    <name>Yellow / Green Wild Card</name>
+    <quantity>1</quantity>
+  </card>
+  <card>
+    <filename>yellow_red_wild.png</filename>
+    <name>Yellow / Red Wild Card</name>
+    <quantity>1</quantity>
+  </card>
+</monopolyDealDeck>
