@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +11,9 @@ public class GameManager : MonoBehaviour
     public Vector3 opponentArea = new Vector3(-2, 2, 0);
     public Vector3 playerArea = new Vector3(-2, -2, 0);
     public float handSpacing = 1.5f;
+    public float dealSpeed = 0.3f;
+    public float dealDelay = 0.08f;
+    public float arcHeight = 2f;
     
     private List<CardData> cardDatabase = new List<CardData>();
     private List<GameObject> cardPile = new List<GameObject>();
@@ -17,10 +21,17 @@ public class GameManager : MonoBehaviour
     private List<GameObject> playerHand = new List<GameObject>();
     private Sprite cardBackSprite;
     private bool cardsDealt = false;
+    private CardActionScreen actionScreen;
     
     void Start()
     {
         deckPosition = new Vector3(-6, 0, 0);
+        
+        // Create action screen
+        GameObject actionScreenObj = new GameObject("CardActionScreen");
+        actionScreenObj.transform.SetParent(this.transform);
+        actionScreen = actionScreenObj.AddComponent<CardActionScreen>();
+        
         InitializeCardDatabase();
         LoadCardSprites();
         CreateCardBack();
@@ -210,47 +221,117 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Deal 5 cards to each player
-            DealHandsToPlayers();
+            // Deal 5 cards to each player with animation
+            StartCoroutine(DealHandsToPlayersAnimated());
             cardsDealt = true;
         }
     }
     
-    void DealHandsToPlayers()
+    IEnumerator DealHandsToPlayersAnimated()
     {
-        // Deal 5 cards to opponent (top of screen)
-        for (int i = 0; i < 5 && cardPile.Count > 0; i++)
+        // Deal 5 cards alternating between player and opponent
+        for (int cardIndex = 0; cardIndex < 5; cardIndex++)
         {
-            GameObject card = cardPile[cardPile.Count - 1];
-            cardPile.RemoveAt(cardPile.Count - 1);
+            // Deal to player first
+            if (cardPile.Count > 0)
+            {
+                StartCoroutine(DealSingleCard(true, cardIndex));
+                yield return new WaitForSeconds(dealDelay);
+            }
             
-            Card cardComponent = card.GetComponent<Card>();
-            cardComponent.SetFaceDown(false);
-            
-            Vector3 cardPosition = opponentArea + new Vector3(i * handSpacing, 0, 0);
-            card.transform.position = cardPosition;
-            card.GetComponent<SpriteRenderer>().sortingOrder = 2000 + i;
-            
+            // Then deal to opponent
+            if (cardPile.Count > 0)
+            {
+                StartCoroutine(DealSingleCard(false, cardIndex));
+                yield return new WaitForSeconds(dealDelay);
+            }
+        }
+        
+        Debug.Log($"Finished dealing. Deck has {cardPile.Count} cards remaining.");
+    }
+    
+    IEnumerator DealSingleCard(bool toPlayer, int handIndex)
+    {
+        GameObject card = cardPile[cardPile.Count - 1];
+        cardPile.RemoveAt(cardPile.Count - 1);
+        
+        Vector3 startPosition = card.transform.position;
+        Vector3 targetPosition;
+        
+        if (toPlayer)
+        {
+            targetPosition = playerArea + new Vector3(handIndex * handSpacing, 0, 0);
+            playerHand.Add(card);
+        }
+        else
+        {
+            targetPosition = opponentArea + new Vector3(handIndex * handSpacing, 0, 0);
             opponentHand.Add(card);
         }
         
-        // Deal 5 cards to player (bottom of screen)
-        for (int i = 0; i < 5 && cardPile.Count > 0; i++)
+        // Calculate control points for realistic card arc
+        Vector3 midPoint = (startPosition + targetPosition) / 2f;
+        midPoint.y += arcHeight; // Add height for the arc
+        
+        // Add some sideways curve for more realistic flight
+        float sideOffset = toPlayer ? -1f : 1f;
+        midPoint.x += sideOffset;
+        
+        // Animate the card with realistic motion
+        float elapsedTime = 0;
+        float startRotation = 0f;
+        float targetRotation = UnityEngine.Random.Range(-15f, 15f); // Random spin
+        
+        while (elapsedTime < dealSpeed)
         {
-            GameObject card = cardPile[cardPile.Count - 1];
-            cardPile.RemoveAt(cardPile.Count - 1);
+            elapsedTime += Time.deltaTime;
+            float progress = elapsedTime / dealSpeed;
             
-            Card cardComponent = card.GetComponent<Card>();
-            cardComponent.SetFaceDown(false);
+            // Use quadratic bezier curve for smooth arc
+            Vector3 pos1 = Vector3.Lerp(startPosition, midPoint, progress);
+            Vector3 pos2 = Vector3.Lerp(midPoint, targetPosition, progress);
+            card.transform.position = Vector3.Lerp(pos1, pos2, progress);
             
-            Vector3 cardPosition = playerArea + new Vector3(i * handSpacing, 0, 0);
-            card.transform.position = cardPosition;
-            card.GetComponent<SpriteRenderer>().sortingOrder = 2000 + i;
+            // Add rotation during flight
+            card.transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(startRotation, targetRotation, progress));
             
-            playerHand.Add(card);
+            // Scale effect - slightly bigger during flight
+            float scale = 1f + (Mathf.Sin(progress * Mathf.PI) * 0.1f);
+            card.transform.localScale = Vector3.one * 0.25f * scale;
+            
+            yield return null;
         }
         
-        Debug.Log($"Dealt 5 cards to each player. Deck has {cardPile.Count} cards remaining.");
+        // Ensure final position and rotation
+        card.transform.position = targetPosition;
+        card.transform.rotation = Quaternion.identity;
+        card.transform.localScale = Vector3.one * 0.25f;
+        
+        // Flip card face up and set sorting order
+        Card cardComponent = card.GetComponent<Card>();
+        cardComponent.SetFaceDown(false);
+        card.GetComponent<SpriteRenderer>().sortingOrder = 2000 + handIndex;
+        
+        // Add a little "landing" effect
+        StartCoroutine(CardLandingEffect(card));
+    }
+    
+    IEnumerator CardLandingEffect(GameObject card)
+    {
+        // Quick scale bounce when card lands
+        float bounceTime = 0.1f;
+        float elapsedTime = 0;
+        
+        while (elapsedTime < bounceTime)
+        {
+            elapsedTime += Time.deltaTime;
+            float progress = elapsedTime / bounceTime;
+            float bounce = 1f + (Mathf.Sin(progress * Mathf.PI) * 0.05f);
+            card.transform.localScale = Vector3.one * 0.25f * bounce;
+            yield return null;
+        }
+        
+        card.transform.localScale = Vector3.one * 0.25f;
     }
     
     void ReturnCardsToDeck()
@@ -292,11 +373,38 @@ public class GameManager : MonoBehaviour
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
             mouseWorldPos.z = 0;
             
+            // Check if action screen should handle the click
+            if (actionScreen.IsActionScreenActive())
+            {
+                return; // Let action screen handle it
+            }
+            
+            // Check if click is on a player card
+            GameObject clickedCard = GetClickedPlayerCard(mouseWorldPos);
+            if (clickedCard != null)
+            {
+                actionScreen.ShowActionScreen(clickedCard);
+                return;
+            }
+            
             // Check if click is on the deck (simple distance check)
             if (Vector3.Distance(mouseWorldPos, deckPosition) < 1.0f)
             {
                 DealCards();
             }
         }
+    }
+    
+    GameObject GetClickedPlayerCard(Vector3 mouseWorldPos)
+    {
+        foreach (GameObject card in playerHand)
+        {
+            float distance = Vector3.Distance(mouseWorldPos, card.transform.position);
+            if (distance < 0.8f) // Adjust this value based on card size
+            {
+                return card;
+            }
+        }
+        return null;
     }
 }
