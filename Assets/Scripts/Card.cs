@@ -6,6 +6,7 @@ public class Card : MonoBehaviour
     private Sprite cardFrontSprite;
     private Sprite cardBackSprite;
     private bool isFaceDown = true;
+    private CardData cardData;
     
     void Awake()
     {
@@ -38,6 +39,26 @@ public class Card : MonoBehaviour
     {
         isFaceDown = !isFaceDown;
         UpdateDisplay();
+    }
+    
+    public void SetCardData(CardData data)
+    {
+        cardData = data;
+    }
+    
+    public CardData GetCardData()
+    {
+        return cardData;
+    }
+    
+    public int GetBankValue()
+    {
+        return cardData?.bankValue ?? 0;
+    }
+    
+    public string GetColourGroup()
+    {
+        return cardData?.colourGroup ?? "None";
     }
     
     private void UpdateDisplay()

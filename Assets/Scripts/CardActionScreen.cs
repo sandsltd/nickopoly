@@ -6,7 +6,7 @@ public class CardActionScreen : MonoBehaviour
 {
     [Header("Action Screen Settings")]
     public Vector3 actionScreenPosition = new Vector3(2, 0, 0);
-    public float actionCardScale = 0.8f;
+    public float actionCardScale = 0.5f; // Smaller action card display
     
     private GameObject currentActionCard;
     private GameObject actionCardDisplay;
@@ -56,6 +56,8 @@ public class CardActionScreen : MonoBehaviour
     
     public void HideActionScreen()
     {
+        Debug.Log("HideActionScreen called - closing action screen");
+        
         if (actionCardDisplay != null)
         {
             Destroy(actionCardDisplay);
@@ -120,7 +122,7 @@ public class CardActionScreen : MonoBehaviour
     void CreateCloseButton()
     {
         closeButton = new GameObject("CloseButton");
-        Vector3 buttonPosition = actionScreenPosition + new Vector3(-4.5f, 1.8f, 0);
+        Vector3 buttonPosition = actionScreenPosition + new Vector3(-4.5f, 2.5f, 0); // Move close button higher up
         closeButton.transform.position = buttonPosition;
         
         // Create background sprite for close button
@@ -144,8 +146,8 @@ public class CardActionScreen : MonoBehaviour
         MeshRenderer textRenderer = textObj.GetComponent<MeshRenderer>();
         textRenderer.sortingOrder = 4002;
         
-        textObj.transform.localScale = Vector3.one * 0.02f;
-        closeButton.transform.localScale = Vector3.one * 1.0f;
+        textObj.transform.localScale = Vector3.one * 0.015f;
+        closeButton.transform.localScale = Vector3.one * 1.6f; // Bigger close button
         
         Debug.Log($"Close button created at position: {buttonPosition}");
     }
@@ -153,24 +155,56 @@ public class CardActionScreen : MonoBehaviour
     CardType GetCardType(GameObject card)
     {
         string cardName = card.name.ToLower();
+        Debug.Log($"Checking card type for: '{cardName}'");
         
+        // Get the actual card data to determine type more accurately
+        Card cardComponent = card.GetComponent<Card>();
+        if (cardComponent != null && cardComponent.GetCardData() != null)
+        {
+            string filename = cardComponent.GetCardData().filename.ToLower();
+            Debug.Log($"Using filename for detection: '{filename}'");
+            
+            // Check for money cards
+            if (filename.Contains("money") || filename.Contains("pass_go"))
+            {
+                Debug.Log($"Detected as Money card via filename: {filename}");
+                return CardType.Money;
+            }
+            
+            // Check for action cards - using filename which is more reliable
+            if (filename.Contains("dealbreaker") || filename.Contains("debt_collector") || 
+                filename.Contains("forced_deal") || filename.Contains("sly_deal") || 
+                filename.Contains("just_say_no") || filename.Contains("double_the_rent") || 
+                filename.Contains("its_my_birthday") || filename.Contains("hotel") || 
+                filename.Contains("house") || filename.Contains("rent_all") ||
+                filename.Contains("_rent.png")) // All rent cards
+            {
+                Debug.Log($"Detected as Action card via filename: {filename}");
+                return CardType.Action;
+            }
+        }
+        
+        // Fallback to card name if no card data
         // Check for money cards
         if (cardName.Contains("money") || cardName.Contains("pass_go"))
         {
+            Debug.Log($"Detected as Money card via cardName: {cardName}");
             return CardType.Money;
         }
         
         // Check for action cards
-        if (cardName.Contains("deal_breaker") || cardName.Contains("debt_collector") || 
+        if (cardName.Contains("dealbreaker") || cardName.Contains("debt_collector") || 
             cardName.Contains("forced_deal") || cardName.Contains("sly_deal") || 
             cardName.Contains("rent") || cardName.Contains("just_say_no") || 
             cardName.Contains("double_the_rent") || cardName.Contains("birthday") ||
             cardName.Contains("hotel") || cardName.Contains("house"))
         {
+            Debug.Log($"Detected as Action card via cardName: {cardName}");
             return CardType.Action;
         }
         
         // Everything else is property (including wild cards)
+        Debug.Log($"Detected as Property card: {cardName}");
         return CardType.Property;
     }
     
@@ -199,13 +233,21 @@ public class CardActionScreen : MonoBehaviour
         }
         
         Debug.Log($"Created action buttons for {cardType} card with consistent layout (no cancel)");
+        Debug.Log($"Total buttons in actionButtons list: {actionButtons.Count}");
+        for (int i = 0; i < actionButtons.Count; i++)
+        {
+            if (actionButtons[i] != null)
+            {
+                Debug.Log($"  Button[{i}]: {actionButtons[i].name} at {actionButtons[i].transform.position}");
+            }
+        }
     }
     
     void CreateActionButton(CardAction action, int index)
     {
         GameObject button = new GameObject($"ActionButton_{action}");
         // Position buttons to the left of the card, vertically stacked
-        Vector3 buttonPosition = actionScreenPosition + new Vector3(-4.5f, 0.8f - (index * 0.8f), 0);
+        Vector3 buttonPosition = actionScreenPosition + new Vector3(-4.5f, 1.2f - (index * 1.0f), 0); // More spacing between buttons
         button.transform.position = buttonPosition;
         
         // Create background sprite for button
@@ -229,8 +271,8 @@ public class CardActionScreen : MonoBehaviour
         MeshRenderer textRenderer = textObj.GetComponent<MeshRenderer>();
         textRenderer.sortingOrder = 4002;
         
-        textObj.transform.localScale = Vector3.one * 0.02f;
-        button.transform.localScale = Vector3.one * 1.0f;
+        textObj.transform.localScale = Vector3.one * 0.015f;
+        button.transform.localScale = Vector3.one * 1.8f; // Much bigger buttons
         
         // Store button reference
         actionButtons.Add(button);
@@ -242,7 +284,7 @@ public class CardActionScreen : MonoBehaviour
     {
         // Create invisible placeholder to maintain consistent spacing
         GameObject emptySlot = new GameObject($"EmptySlot_{index}");
-        Vector3 slotPosition = actionScreenPosition + new Vector3(-4.5f, 0.8f - (index * 0.8f), 0);
+        Vector3 slotPosition = actionScreenPosition + new Vector3(-4.5f, 1.2f - (index * 1.0f), 0); // Match button spacing
         emptySlot.transform.position = slotPosition;
         
         // Store empty slot reference for cleanup
@@ -363,8 +405,10 @@ public class CardActionScreen : MonoBehaviour
             if (closeButton != null)
             {
                 float distanceToCloseButton = Vector3.Distance(mouseWorldPos, closeButton.transform.position);
-                if (distanceToCloseButton < 1.0f)
+                Debug.Log($"Click distance to close button: {distanceToCloseButton}, threshold: 1.0f");
+                if (distanceToCloseButton < 1.0f) // Bigger close button click area
                 {
+                    Debug.Log("Closing action screen - close button clicked");
                     HideActionScreen();
                     return;
                 }
@@ -376,8 +420,10 @@ public class CardActionScreen : MonoBehaviour
                 if (button != null && button.name.StartsWith("ActionButton_"))
                 {
                     float distanceToButton = Vector3.Distance(mouseWorldPos, button.transform.position);
-                    if (distanceToButton < 1.0f) // Larger click area for buttons
+                    // Debug.Log($"Checking button {button.name} at {button.transform.position}, distance: {distanceToButton}");
+                    if (distanceToButton < 1.4f) // Larger click area for bigger buttons
                     {
+                        Debug.Log($"Button {button.name} clicked!");
                         HandleActionButtonClick(button.name);
                         return;
                     }
@@ -386,8 +432,10 @@ public class CardActionScreen : MonoBehaviour
             
             // Check if click is outside the action card area
             float distanceToActionCard = Vector3.Distance(mouseWorldPos, actionScreenPosition);
+            Debug.Log($"Click distance to action card: {distanceToActionCard}, threshold: 1.5f");
             if (distanceToActionCard > 1.5f) // Outside the action card area
             {
+                Debug.Log("Closing action screen - click too far from action card");
                 HideActionScreen();
             }
         }
@@ -401,7 +449,7 @@ public class CardActionScreen : MonoBehaviour
         switch (actionName)
         {
             case "Bank":
-                Debug.Log($"Banking card: {currentActionCard.name}");
+                BankCard(currentActionCard);
                 HideActionScreen();
                 break;
             case "Place":
@@ -412,6 +460,43 @@ public class CardActionScreen : MonoBehaviour
                 Debug.Log($"Playing action card: {currentActionCard.name}");
                 HideActionScreen();
                 break;
+        }
+    }
+    
+    void BankCard(GameObject cardToBankObj)
+    {
+        Debug.Log($"BankCard called for GameObject: {cardToBankObj.name}");
+        
+        Card cardToBankComponent = cardToBankObj.GetComponent<Card>();
+        if (cardToBankComponent == null)
+        {
+            Debug.LogError($"No Card component found on {cardToBankObj.name}");
+            return;
+        }
+        
+        CardData cardData = cardToBankComponent.GetCardData();
+        if (cardData == null)
+        {
+            Debug.LogError($"No CardData found on {cardToBankObj.name}");
+            return;
+        }
+        
+        int bankValue = cardToBankComponent.GetBankValue();
+        string cardName = cardData.cardName;
+        
+        Debug.Log($"Banking card: {cardName}, Bank Value: {bankValue}, Filename: {cardData.filename}");
+        
+        // Find the GameManager to call banking method
+        GameManager gameManager = FindObjectOfType<GameManager>();
+        if (gameManager != null)
+        {
+            Debug.Log($"Calling GameManager.AddCardToPlayerBank for {cardName}");
+            gameManager.AddCardToPlayerBank(cardToBankObj, bankValue);
+            Debug.Log($"Successfully banked {cardName} for £{bankValue}M");
+        }
+        else
+        {
+            Debug.LogError("Could not find GameManager to bank card");
         }
     }
 }
